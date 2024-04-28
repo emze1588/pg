@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+        }
+        canvas {
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="pongCanvas" width="800" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById('pongCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const ball = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            radius: 10,
+            speed: 5,
+            dx: 5,
+            dy: -5
+        };
+
+        const paddleHeight = 100;
+        const paddleWidth = 10;
+        const paddleOffset = 20;
+
+        let leftPaddleY = (canvas.height - paddleHeight) / 2;
+        let rightPaddleY = (canvas.height - paddleHeight) / 2;
+
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawPaddles() {
+            // Draw left paddle
+            ctx.beginPath();
+            ctx.rect(paddleOffset, leftPaddleY, paddleWidth, paddleHeight);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+            ctx.closePath();
+
+            // Draw right paddle
+            ctx.beginPath();
+            ctx.rect(canvas.width - paddleOffset - paddleWidth, rightPaddleY, paddleWidth, paddleHeight);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function draw() {
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw elements
+            drawBall();
+            drawPaddles();
+
+            // Update ball position
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            // Ball collision with top and bottom walls
+            if (ball.y + ball.dy > canvas.height - ball.radius || ball.y + ball.dy < ball.radius) {
+                ball.dy = -ball.dy;
+            }
+
+            // Ball collision with paddles
+            if (
+                ball.x - ball.radius <= paddleOffset + paddleWidth &&
+                ball.y >= leftPaddleY &&
+                ball.y <= leftPaddleY + paddleHeight
+            ) {
+                ball.dx = -ball.dx;
+            } else if (
+                ball.x + ball.radius >= canvas.width - paddleOffset - paddleWidth &&
+                ball.y >= rightPaddleY &&
+                ball.y <= rightPaddleY + paddleHeight
+            ) {
+                ball.dx = -ball.dx;
+            }
+
+            // Request animation frame
+            requestAnimationFrame(draw);
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowUp' && rightPaddleY > 0) {
+                rightPaddleY -= 20;
+            } else if (event.key === 'ArrowDown' && rightPaddleY < canvas.height - paddleHeight) {
+                rightPaddleY += 20;
+            }
+        });
+
+        // Start the game
+        draw();
+    </script>
+</body>
+</html>
